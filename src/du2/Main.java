@@ -3,9 +3,7 @@ package du2;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.TreeSet;
 
 /**
  *
@@ -16,7 +14,7 @@ public class Main {
     static int N, M; // number of nodes, number of edges
     static int[] degree, weight, number_of_edges, index_of_node_in_topo;
     static int[][] edges;
-    static Set<Integer>[] nasl, pred;
+    static boolean[][] nasl, pred;
 
     static void topologicalSort() {
         int[] queue = new int[N];
@@ -31,8 +29,10 @@ public class Main {
             int A = queue[i];
             for (int j = 0; j < number_of_edges[A]; j++) {
                 int B = edges[A][j];
-                pred[B].add(A); // creating prededecesors sets
-                pred[B].addAll(pred[A]);
+                pred[B][A] = true; // creating prededecesors sets
+                for (int k = 0; k < N; k++) {
+                    if (pred[A][k] == true) pred[B][k] = true;
+                }
                 if (--degree[B] == 0) {
                     queue[queue_size] = B;
                     index_of_node_in_topo[B] = queue_size++;
@@ -43,8 +43,10 @@ public class Main {
     
     static void createNasl() {
         for (int i = 0; i < N; i++) {
-            for (Integer p : pred[i]) {
-                nasl[p].add(i);
+            for (int j = 0; j < N; j++) {
+                if (pred[i][j] == true) {
+                    nasl[j][i] = true;
+                }
             }
         }
     }
@@ -83,12 +85,8 @@ public class Main {
             degree[node2]++;
         }
         
-        nasl = new TreeSet[N];
-        pred = new TreeSet[N];
-        for (int i = 0; i < N; i++) {
-            nasl[i] = new TreeSet();
-            pred[i] = new TreeSet();
-        }
+        nasl = new boolean[N][N];
+        pred = new boolean[N][N];
         
         topologicalSort();
         createNasl();
@@ -98,13 +96,14 @@ public class Main {
             for (int j = 0; j < number_of_edges[i]; j++) {
                 int A = i;
                 int B = edges[i][j];
-                Set<Integer> intersection = new TreeSet(nasl[A]);
-                intersection.retainAll(pred[B]);
-                if (intersection.isEmpty()) continue;
-                int weight_sum = weight[A]+weight[B];
-                for (Integer node : intersection) {
-                    weight_sum += weight[node];
+                int weight_sum = 0;
+                for (int k = 0; k < N; k++) {
+                    if (nasl[A][k] == true && pred[B][k] == true) {
+                        weight_sum += weight[k];
+                    }
                 }
+                if (weight_sum == 0) continue;
+                weight_sum += weight[A]+weight[B];
                 if (weight_sum > result[2]) {
                     result[0] = A;
                     result[1] = B;
