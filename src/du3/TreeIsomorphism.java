@@ -29,18 +29,6 @@ public class TreeIsomorphism {
         throw new UnsupportedOperationException("Not implemented yet.");
     }
 
-    static void copyTreeExceptVertex(boolean[][] out_tree, short[] out_degrees, int vertex) {
-        for (int i = 0; i < out_tree.length; i++) {
-            for (int j = i; j < out_tree[i].length; j++) { // limited to diagonal - only upper half of diagonal is filled
-                if (i != vertex && j != vertex) {
-                    out_tree[i][j] = B_matrix[i][j];
-                    out_degrees[i]++;
-                    out_degrees[j]++;
-                }
-            }
-        }
-    }
-
     static boolean compare(short[] A, short[] B) {
         for (int i = 0; i < A.length; i++) {
             if (A[i] != B[i]) {
