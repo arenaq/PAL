@@ -3,6 +3,7 @@ package du3;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 /**
@@ -25,8 +26,81 @@ public class TreeIsomorphism {
         return degreesClassification;
     }
 
-    static boolean[] getCertificate(short[][] tree) {
-        throw new UnsupportedOperationException("Not implemented yet.");
+    static String getCertificate(boolean[][] tree, short[] degrees, int skip) {
+        short[] degrees_copy = new short[degrees.length];
+        boolean[][] tree_copy = new boolean[tree.length][tree[0].length];
+        System.arraycopy(degrees, 0, degrees_copy, 0, degrees.length);
+        for (int i = 0; i < tree_copy.length; i++) {
+            System.arraycopy(tree[i], 0, tree_copy[i], 0, tree[i].length);
+        }
+        String[] label = new String[tree_copy.length];
+        Arrays.fill(label, "01");
+        boolean[] sort = new boolean[tree_copy.length];
+        String[][] parts = new String[tree_copy.length][tree_copy[0].length];
+        short[] i_parts = new short[tree_copy[0].length];
+
+        int number_of_vertices = tree_copy.length;
+        if (skip > -1) {
+            label[skip] = null;
+            number_of_vertices--;
+        }
+        while (number_of_vertices > 2) {
+            for (int i = 0; i < degrees_copy.length; i++) {
+                if (degrees_copy[i] == 1) { // find leaf
+                    short adjacent = 0;
+                    for (short j = 0; j < tree_copy[i].length; j++) { // get adjacent vertex to the leaf
+                        if (tree_copy[i][j] == true) {
+                            adjacent = j;
+                            tree_copy[i][j] = false;
+                            tree_copy[j][i] = false;
+                            break;
+                        }
+                    }
+                    sort[adjacent] = true; // set adjacent vertex for after processing (sorting of labels)
+                    parts[adjacent][i_parts[adjacent]++] = label[i]; // add label to set of labels which are to be sorted in after processing
+                    label[i] = null; // remove label of i (we should never need it again)
+                    degrees_copy[i]--; // lower degree of a leaf from 1 to 0
+                    number_of_vertices--;
+                }
+            }
+            // after processing
+            for (int j = 0; j < sort.length; j++) {
+                if (sort[j] == true) {
+                    String[] to_sort = new String[i_parts[j] + 1];
+                    System.arraycopy(parts[j], 0, to_sort, 0, i_parts[j]);
+
+                    if (label[j].length() > 2) {
+                        to_sort[to_sort.length - 1] = label[j].substring(1, label[j].length() - 1);
+                    } else {
+                        to_sort[to_sort.length - 1] = "";
+                    }
+
+                    Arrays.sort(to_sort);
+                    label[j] = "";
+                    for (int k = 0; k < to_sort.length; k++) {
+                        label[j] += to_sort[k];
+                    }
+                    label[j] = "0" + label[j] + "1";
+                    // clean
+                    degrees_copy[j] -= i_parts[j];
+                    sort[j] = false;
+                    i_parts[j] = 0;
+                }
+            }
+        }
+        String[] certificate = new String[2];
+        short tmp = 0;
+        for (int i = 0; i < label.length; i++) {
+            if (label[i] != null) {
+                certificate[tmp++] = label[i];
+            }
+        }
+        if (number_of_vertices == 1) {
+            return certificate[0];
+        } else {
+            Arrays.sort(certificate);
+            return certificate[0] + certificate[1];
+        }
     }
 
     static boolean compare(short[] A, short[] B) {
@@ -78,6 +152,8 @@ public class TreeIsomorphism {
             B_edges[v2][B_degrees[v2]++] = v1;
         }
 
+        String A_certificate = getCertificate(A_matrix, A_degrees, -1);
+
         StringBuilder sb = new StringBuilder();
         String prefix = "";
         //System.out.println("Graph B:");
@@ -93,8 +169,12 @@ public class TreeIsomorphism {
                 //System.out.println("-----------------");
                 short[] d = getDegreesClassification(B_degrees);
                 if (compare(A_degree_classification, d)) {
-                    sb.append(prefix).append(i);
-                    prefix = " ";
+                    String B_certificate = getCertificate(B_matrix, B_degrees, i);
+                    //System.out.println(i + ": " + A_certificate + " ? " + B_certificate);
+                    if (A_certificate.compareTo(B_certificate) == 0) {
+                        sb.append(prefix).append(i);
+                        prefix = " ";
+                    }
                 }
                 B_matrix[i][B_edges[i][0]] = true;
                 B_matrix[B_edges[i][0]][i] = true;
@@ -102,8 +182,10 @@ public class TreeIsomorphism {
                 B_degrees[B_edges[i][0]]++;
             }
         }
-        System.out.println("-");
+        //System.out.println("-");
         System.out.println(sb.toString());
+        /////////////////////////////////////////
+        //System.out.println(getCertificate(B_matrix, B_edges, B_degrees));
     }
 
     static void printGraph(boolean[][] graph, short[] number_of_edges) {
