@@ -12,6 +12,7 @@ import java.util.StringTokenizer;
 public class TreeIsomorphism {
 
     static boolean[][] A_matrix, B_matrix; // {{vertex, vertex}, does they have an edge} - only upper half from diagonal is filled
+    static short[][] B_edges;
     static short[] A_degrees, B_degrees; // {vertex, number of edges}
     static short[] A_degree_classification, B_degree_classification; // {degree, count} - example {1, 4} means that there are 4 vertices with degree 1
 
@@ -27,11 +28,11 @@ public class TreeIsomorphism {
         throw new UnsupportedOperationException("Not implemented yet.");
     }
 
-    static void copyGraphExceptVertex(boolean[][] out_graph, short[] out_degrees, int vertex) {
-        for (int i = 0; i < out_graph.length; i++) {
-            for (int j = i; j < out_graph[i].length; j++) { // limited to diagonal - only upper half of diagonal is filled
+    static void copyTreeExceptVertex(boolean[][] out_tree, short[] out_degrees, int vertex) {
+        for (int i = 0; i < out_tree.length; i++) {
+            for (int j = i; j < out_tree[i].length; j++) { // limited to diagonal - only upper half of diagonal is filled
                 if (i != vertex && j != vertex) {
-                    out_graph[i][j] = B_matrix[i][j];
+                    out_tree[i][j] = B_matrix[i][j];
                     out_degrees[i]++;
                     out_degrees[j]++;
                 }
@@ -49,43 +50,40 @@ public class TreeIsomorphism {
             StringTokenizer st = new StringTokenizer(in.readLine());
             short v1 = Short.parseShort(st.nextToken());
             short v2 = Short.parseShort(st.nextToken());
-            if (v1 < v2) {
-                A_matrix[v1][v2] = true;
-            } else {
-                A_matrix[v2][v1] = true;
-            }
+            A_matrix[v1][v2] = true;
+            A_matrix[v2][v1] = true;
             A_degrees[v1]++;
             A_degrees[v2]++;
         }
 
         B_matrix = new boolean[N + 1][N + 1];
+        B_edges = new short[N + 1][N + 1];
         B_degrees = new short[N + 1];
         for (int i = 0; i < N; i++) {
             StringTokenizer st = new StringTokenizer(in.readLine());
             short v1 = Short.parseShort(st.nextToken());
             short v2 = Short.parseShort(st.nextToken());
-            if (v1 < v2) {
-                B_matrix[v1][v2] = true;
-            } else {
-                B_matrix[v2][v1] = true;
-            }
-            B_degrees[v1]++;
-            B_degrees[v2]++;
+            B_matrix[v1][v2] = true;
+            B_matrix[v2][v1] = true;
+            B_edges[v1][B_degrees[v1]++] = v2;
+            B_edges[v2][B_degrees[v2]++] = v1;
         }
 
         System.out.println("Graph B:");
         printGraph(B_matrix, B_degrees);
         for (int i = 0; i < B_degrees.length; i++) {
             if (B_degrees[i] == 1) {
-                System.out.println("Vertex "+i+":");
-                for (int x = 0; x < B_matrix.length; x++) {
-                    for (int y = x; y < B_matrix[x].length; y++) { // limited to diagonal - only upper half of diagonal is filled
-                        if (x != i && y != i) {
-                            if (B_matrix[x][y] == true) System.out.println(x+" "+y);
-                        }
-                    }
-                }
+                B_matrix[i][B_edges[i][0]] = false;
+                B_matrix[B_edges[i][0]][i] = false;
+                B_degrees[i]--;
+                B_degrees[B_edges[i][0]]--;
+                System.out.println("Vertex " + i + ":");
+                printGraph(B_matrix, B_degrees);
                 System.out.println("-----------------");
+                B_matrix[i][B_edges[i][0]] = true;
+                B_matrix[B_edges[i][0]][i] = true;
+                B_degrees[i]++;
+                B_degrees[B_edges[i][0]]++;
             }
         }
         // TODO
