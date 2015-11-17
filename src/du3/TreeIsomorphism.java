@@ -15,8 +15,35 @@ public class TreeIsomorphism {
     static short[] A_number_of_edges, B_number_of_edges;
     static short[] A_edge_to_degree, B_edge_to_degree;
     
-    static short[] getCertificate(short[][] tree) {
+    static short[] getDegreesClassification(short[] edge_to_degree) {
+        short[] degreesClassification = new short[edge_to_degree.length];
+        for (int i = 0; i < edge_to_degree.length; i++) {
+            degreesClassification[edge_to_degree[i]]++;
+        }
+        return degreesClassification;
+    }
+    
+    static boolean[] getCertificate(short[][] tree) {
         throw new UnsupportedOperationException("Not implemented yet.");
+    }
+    
+    static void copyGraphExceptVertex(short[][] out_graph, short[] out_number_of_edges, int vertex) {
+        for (int i = 0; i < vertex; i++) {
+            for (int j = 0; j < B_number_of_edges[i]; j++) {
+                short val = B_edges[i][j];
+                if (val != vertex) {
+                    out_graph[i][out_number_of_edges[i]++] = val;
+                }
+            }
+        }
+        for (int i = vertex+1; i < B_edges.length; i++) {
+            for (int j = 0; j < B_number_of_edges[i]; j++) {
+                short val = B_edges[i][j];
+                if (val != vertex) {
+                    out_graph[i-1][out_number_of_edges[i-1]++] = val;
+                }
+            }
+        }
     }
     
     public static void main(String[] args) throws IOException {
@@ -48,36 +75,39 @@ public class TreeIsomorphism {
              B_edge_to_degree[v1]++;
              B_edge_to_degree[v2]++;
         }
+        
+        System.out.println("Graph B:");
+        printGraph(B_edges, B_number_of_edges);
+        for (int i = 0; i < B_edge_to_degree.length; i++) {
+            short[][] graph_candidate = new short[N][N];
+            short[] number_of_edges = new short[N];
+            if (B_edge_to_degree[i] == 1) {
+                copyGraphExceptVertex(graph_candidate, number_of_edges, i);
+                // VYPIS
+                System.out.println("Vertex "+i+":");
+                printGraph(graph_candidate, number_of_edges);
+            }
+        }
         // TODO
         /* pro vsechny vrcholy X stupne 1 z grafu B:
         pokud podgraf G grafu B vytvoreny odebranim hrany vrcholu X ma stejne schema stupnu vrcholu,   tak vytvorime z grafu G certifikat a porovname jej s grafem A
         */
     }
     
-    static void printEdges() {
+    static void printGraph(short[][] graph, short[] number_of_edges) {
         StringBuilder sb = new StringBuilder("\n");
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < A_number_of_edges[i]; j++) {
-                sb.append(i+" "+A_edges[i][j]+"\n");
-            }
-        }
-        sb.append("-\n");
-        for (int i = 0; i < N+1; i++) {
-            for (int j = 0; j < B_number_of_edges[i]; j++) {
-                sb.append(i+" "+B_edges[i][j]+"\n");
+        for (int i = 0; i < graph.length; i++) {
+            for (int j = 0; j < number_of_edges[i]; j++) {
+                sb.append(i+" "+graph[i][j]+"\n");
             }
         }
         System.out.println(sb.toString());
     }
     
-    static void printDegrees() {
+    static void print1dArray(short[] array) {
         StringBuilder sb = new StringBuilder("\n");
-        for (int i = 0; i < N; i++) {
-            sb.append(i+":"+A_edge_to_degree[i]+"\n");
-        }
-        sb.append("-\n");
-        for (int i = 0; i < N+1; i++) {
-            sb.append(i+":"+B_edge_to_degree[i]+"\n");
+        for (int i = 0; i < array.length; i++) {
+            sb.append(i+":"+array[i]+"\n");
         }
         System.out.println(sb.toString());
     }
