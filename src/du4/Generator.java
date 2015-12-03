@@ -21,11 +21,13 @@ public class Generator {
         Set<Integer> s = new TreeSet();
         for (int i = 2; i <= Math.sqrt(n); i++) {
             while (n % i == 0) {
+                if (s.contains(i)) return -1;
                 s.add(i);
                 n = n / i;
             }
         }
         if (n > 1) {
+            if (s.contains(n)) return -1;
             s.add(n);
         }
         return s.size();
@@ -40,21 +42,44 @@ public class Generator {
         M = Integer.parseInt(st.nextToken());
         K = Integer.parseInt(st.nextToken());
         N = Integer.parseInt(st.nextToken());
-        int mcn;
-        int seed = 0;
-        StringBuilder sb = new StringBuilder();
-        StringBuilder sb_tmp = new StringBuilder();
-        int index = 0;
-        StringBuilder sb_index = new StringBuilder();
-        do {
-            sb_index.append(String.valueOf(index++)+"\t");
-            sb.append(seed+"\t");
-            sb_tmp.append(numberOfDistinctFactors(seed)+"\t");
+        /////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////
+        int[] seeds = new int[M];
+        boolean[] challenging = new boolean[M];
+        int best_seed = 0, best_count = 0;
+        int seed = pseudoRandom(0, A, C, M);
+        int count = 0;
+        int index = 1;
+        for (; index < N; index++) {
+            if (numberOfDistinctFactors(seed) == K) {
+                count++;
+                challenging[index] = true;
+            }
+            seeds[index] = seed;
             seed = pseudoRandom(seed, A, C, M);
-        } while (seed != 0);
-        System.out.println(sb_index.toString());
-        System.out.println(sb.toString());
-        System.out.println(sb_tmp.toString());
+        }
+        
+        best_count = count;
+        
+        while (seed != 0) {
+            if (numberOfDistinctFactors(seed) == K) {
+                count++;
+                challenging[index] = true;
+            }
+            seeds[index] = seed;
+            seed = pseudoRandom(seed, A, C, M);
+            if (challenging[index - N]) {
+                count--;
+            } else {
+                if (count > best_count) {
+                    best_seed = seeds[index - N + 1];
+                    best_count = count;
+                }
+            }
+            index++;
+        }
+        System.out.println(best_seed+" "+best_count);
     }
 
 }
