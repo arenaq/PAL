@@ -53,12 +53,14 @@ public class Generator {
                 for (int i1 = 0, t1 = prime_numbers[i1]; t1 < sito.length; t1 = prime_numbers[++i1]) {
                     sito[t1] = true;
                 }
+            break;
             case 2:
                 for (int i1 = 0, t1 = prime_numbers[i1]; t1 < sito.length; t1 = prime_numbers[++i1]) {
                     for (int i2 = i1 + 1, t2 = t1 * prime_numbers[i2]; t2 < sito.length; t2 = t1 * prime_numbers[++i2]) {
                         sito[t2] = true;
                     }
                 }
+            break;
             case 3:
                 for (int i1 = 0, t1 = prime_numbers[i1]; t1 < sito.length; t1 = prime_numbers[++i1]) {
                     for (int i2 = i1 + 1, t2 = t1 * prime_numbers[i2]; t2 < sito.length; t2 = t1 * prime_numbers[++i2]) {
@@ -67,6 +69,7 @@ public class Generator {
                         }
                     }
                 }
+            break;
             case 4:
                 for (int i1 = 0, t1 = prime_numbers[i1]; t1 < sito.length; t1 = prime_numbers[++i1]) {
                     for (int i2 = i1 + 1, t2 = t1 * prime_numbers[i2]; t2 < sito.length; t2 = t1 * prime_numbers[++i2]) {
@@ -77,6 +80,7 @@ public class Generator {
                         }
                     }
                 }
+            break;
             case 5:
                 for (int i1 = 0, t1 = prime_numbers[i1]; t1 < sito.length; t1 = prime_numbers[++i1]) {
                     for (int i2 = i1 + 1, t2 = t1 * prime_numbers[i2]; t2 < sito.length; t2 = t1 * prime_numbers[++i2]) {
@@ -89,6 +93,7 @@ public class Generator {
                         }
                     }
                 }
+            break;
             case 6:
                 for (int i1 = 0, t1 = prime_numbers[i1]; t1 < sito.length; t1 = prime_numbers[++i1]) {
                     for (int i2 = i1 + 1, t2 = t1 * prime_numbers[i2]; t2 < sito.length; t2 = t1 * prime_numbers[++i2]) {
@@ -103,6 +108,7 @@ public class Generator {
                         }
                     }
                 }
+            break;
             case 7:
                 for (int i1 = 0, t1 = prime_numbers[i1]; t1 < sito.length; t1 = prime_numbers[++i1]) {
                     for (int i2 = i1 + 1, t2 = t1 * prime_numbers[i2]; t2 < sito.length; t2 = t1 * prime_numbers[++i2]) {
@@ -119,6 +125,7 @@ public class Generator {
                         }
                     }
                 }
+            break;
             case 8:
                 for (int i1 = 0, t1 = prime_numbers[i1]; t1 < sito.length; t1 = prime_numbers[++i1]) {
                     for (int i2 = i1 + 1, t2 = t1 * prime_numbers[i2]; t2 < sito.length; t2 = t1 * prime_numbers[++i2]) {
@@ -137,6 +144,7 @@ public class Generator {
                         }
                     }
                 }
+            break;
             case 9:
                 for (int i1 = 0, t1 = prime_numbers[i1]; t1 < sito.length; t1 = prime_numbers[++i1]) {
                     for (int i2 = i1 + 1, t2 = t1 * prime_numbers[i2]; t2 < sito.length; t2 = t1 * prime_numbers[++i2]) {
@@ -157,6 +165,7 @@ public class Generator {
                         }
                     }
                 }
+            break;
             case 10:
                 for (int i1 = 0, t1 = prime_numbers[i1]; t1 < sito.length; t1 = prime_numbers[++i1]) {
                     for (int i2 = i1 + 1, t2 = t1 * prime_numbers[i2]; t2 < sito.length; t2 = t1 * prime_numbers[++i2]) {
@@ -179,6 +188,7 @@ public class Generator {
                         }
                     }
                 }
+            break;
         }
     }
 
