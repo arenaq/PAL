@@ -32,6 +32,7 @@ public class Generator {
 
     public static void main(String[] args) throws IOException {
         int A, C, M, K, N;
+        // parse arguments
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(in.readLine());
         A = Integer.parseInt(st.nextToken());
@@ -39,9 +40,7 @@ public class Generator {
         M = Integer.parseInt(st.nextToken());
         K = Integer.parseInt(st.nextToken());
         N = Integer.parseInt(st.nextToken());
-        /////////////////////////////////////////////////////////////////////////////
-        /////////////////////////////////////////////////////////////////////////////
-        /////////////////////////////////////////////////////////////////////////////
+        // creation of Eratosthenesrat sieve
         BitSet sieve = new BitSet(M);
         sieve.set(2, sieve.size(), true);
         
@@ -57,11 +56,13 @@ public class Generator {
                 }
             }
         }
-        /////////////////////////////////////////////////////////////////////////////
-        int[] seeds = new int[M];
-        boolean[] challenging = new boolean[M];
-        int seed = pseudoRandom(0, A, C, M);
-        int count = 0;
+        // OK, now let's have some fun
+        int[] seeds = new int[M]; // array of all seeds (will be usefull in the end)
+        boolean[] challenging = new boolean[M]; // array of challenging numbers
+        int best_seed = 0, best_count; // best seed to start from and best count of challenging numbers in the set
+        int seed = pseudoRandom(0, A, C, M); // let's start from 0 (its given in the assignment)
+        int count = 0; // number of challenging numbers in the set
+        // now lets initiate the first set from 1 to N
         int index = 1;
         for (; index < N; index++) {
             if (hasKDistinctFactors(sieve, seed, K)) {
@@ -72,8 +73,11 @@ public class Generator {
             seed = pseudoRandom(seed, A, C, M);
         }
         
-        best_count = count;
+        best_count = count; // the best we have so far is our only one...
         
+        // ok, now... lets not do the whole set again, instead just move to the right in the sequence of pseudo random numbers 
+        // and decrease counter if the first index of our set (the one that we are leaving behind) was challenging number or not
+        // and increase counter if the new number (the one that is added to our set) is challenging number or not
         while (seed != 0) {
             if (hasKDistinctFactors(sieve, seed, K)) {
                 count++;
