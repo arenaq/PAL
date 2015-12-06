@@ -32,6 +32,20 @@ public class Generator {
         }
         return s.size();
     }
+    
+    static boolean hasKDistinctFactors(int n, int K) {
+        int dist_fact = 0;
+        int tmp = n;
+        for (int i = 2; i <= n; i++) {
+            if (tmp % i == 0) {
+                dist_fact++;
+                tmp = tmp / i;
+                if (dist_fact == K) break;
+                if (tmp % i == 0) return false;
+            }
+        }
+        return dist_fact==K && tmp == 1;
+    }
 
     public static void main(String[] args) throws IOException {
         int A, C, M, K, N;
@@ -52,7 +66,7 @@ public class Generator {
         int count = 0;
         int index = 1;
         for (; index < N; index++) {
-            if (numberOfDistinctFactors(seed) == K) {
+            if (hasKDistinctFactors(seed, K)) {
                 count++;
                 challenging[index] = true;
             }
@@ -63,7 +77,7 @@ public class Generator {
         best_count = count;
         
         while (seed != 0) {
-            if (numberOfDistinctFactors(seed) == K) {
+            if (hasKDistinctFactors(seed, K)) {
                 count++;
                 challenging[index] = true;
             }
