@@ -3,6 +3,7 @@ package du4;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.BitSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
@@ -33,10 +34,10 @@ public class Generator {
         return s.size();
     }
     
-    static boolean hasKDistinctFactors(int n, int K) {
+    static boolean hasKDistinctFactors(BitSet sieve, int n, int K) {
         int dist_fact = 0;
         int tmp = n;
-        for (int i = 2; i <= n; i++) {
+        for (int i = sieve.nextSetBit(0); i <= n; i = sieve.nextSetBit(i+1)) {
             if (tmp % i == 0) {
                 dist_fact++;
                 tmp = tmp / i;
@@ -59,6 +60,22 @@ public class Generator {
         /////////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////
+        BitSet sieve = new BitSet(M);
+        sieve.set(2, sieve.size(), true);
+        
+        for (int i = 2; i*i <= sieve.size(); i++) {
+            if (sieve.get(i)) {
+                int j = i;
+                int sqrt = i * j;
+                while (sqrt >= 0) {
+                    if (sqrt > sieve.size()) break;
+                    sieve.set(sqrt, false);
+                    j++;
+                    sqrt = i * j;
+                }
+            }
+        }
+        /////////////////////////////////////////////////////////////////////////////
         int[] seeds = new int[M];
         boolean[] challenging = new boolean[M];
         int best_seed = 0, best_count = 0;
@@ -66,7 +83,7 @@ public class Generator {
         int count = 0;
         int index = 1;
         for (; index < N; index++) {
-            if (hasKDistinctFactors(seed, K)) {
+            if (hasKDistinctFactors(sieve, seed, K)) {
                 count++;
                 challenging[index] = true;
             }
@@ -77,7 +94,7 @@ public class Generator {
         best_count = count;
         
         while (seed != 0) {
-            if (hasKDistinctFactors(seed, K)) {
+            if (hasKDistinctFactors(sieve, seed, K)) {
                 count++;
                 challenging[index] = true;
             }
