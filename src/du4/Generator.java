@@ -4,9 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.BitSet;
-import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.TreeSet;
 
 /**
  *
@@ -18,34 +16,18 @@ public class Generator {
         return (A * seed + C) % M;
     }
     
-    static int numberOfDistinctFactors(int n) {
-        Set<Integer> s = new TreeSet();
-        for (int i = 2; i <= Math.sqrt(n); i++) {
-            while (n % i == 0) {
-                if (s.contains(i)) return -1;
-                s.add(i);
-                n = n / i;
-            }
-        }
-        if (n > 1) {
-            if (s.contains(n)) return -1;
-            s.add(n);
-        }
-        return s.size();
-    }
-    
     static boolean hasKDistinctFactors(BitSet sieve, int n, int K) {
         int dist_fact = 0;
         int tmp = n;
-        for (int i = sieve.nextSetBit(0); i <= n; i = sieve.nextSetBit(i+1)) {
-            if (tmp % i == 0) {
+        for (int i = sieve.nextSetBit(0); i <= tmp; i = sieve.nextSetBit(i+1)) {
+            if (n % i == 0) {
                 dist_fact++;
-                tmp = tmp / i;
+                n = n / i;
                 if (dist_fact == K) break;
-                if (tmp % i == 0) return false;
+                if (n % i == 0) return false;
             }
         }
-        return dist_fact==K && tmp == 1;
+        return dist_fact==K && n == 1;
     }
 
     public static void main(String[] args) throws IOException {
@@ -78,7 +60,6 @@ public class Generator {
         /////////////////////////////////////////////////////////////////////////////
         int[] seeds = new int[M];
         boolean[] challenging = new boolean[M];
-        int best_seed = 0, best_count = 0;
         int seed = pseudoRandom(0, A, C, M);
         int count = 0;
         int index = 1;
