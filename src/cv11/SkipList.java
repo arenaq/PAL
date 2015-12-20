@@ -1,69 +1,146 @@
 package cv11;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.LinkedList;
 import java.util.Random;
-import java.util.StringTokenizer;
 
 /**
  *
  * @author Petr Kuška
  */
-public class SkipList {
-    static List<Integer> list_head;
+public class SkipList<Data> {
+    
     static final double p = 0.25;
-    static int maxLevel = 1;
-
-    private static class List<T> {
-        T value;
-        List<T>[] pointers;
+    private final int maxLevel;
+    public Node<Data> header;
+    public int level;
+    
+    public class Node<T> {
+        public Node[] forward;
+        public Integer key;
+        public T value;
+        
+        public Node(int level, Integer key, T data) {
+            this.forward = new Node[level];
+            this.key = key;
+            this.value = data;
+        }
     }
     
-    static int randomLevel() { //random() returns a random value in [0..1)
+    public SkipList(int maxLevel) {
+        this.maxLevel = maxLevel;
+        level = 1;
+        //Node<Data> tail = new Node(maxLevel, Integer.MAX_VALUE, null);
+        header = new Node(maxLevel, 0/*Integer.MIN_VALUE*/, null);
+        //header.forward[0] = tail;
+    }
+    
+    public Data search(int searchKey) {
+        Node<Data> x = header;
+        for (int i = level; i >= 0; i--) {
+            while (x.forward[i] != null && x.forward[i].key < searchKey) {
+                x = x.forward[i];
+            }
+        }
+        x = x.forward[0];
+        if (x != null && x.key == searchKey) {
+            return x.value;
+        } else {
+            return null;
+        }
+    }
+    
+    public void insert(int newLevel, int searchKey, Data newValue) {
+        Node[] update = new Node[level+1];
+        Node<Data> x = this.header;
+        for (int i = this.level - 1; i >= 0; i--) {
+            while (x.forward[i] != null && x.forward[i].key < searchKey) {
+                x = x.forward[i];
+            }
+            update[i] = x;
+        }
+        
+        x = x.forward[0];
+        if (x != null && x.key == searchKey) {
+            x.value = newValue;
+        } else {
+            if (newLevel > this.level) {
+                newLevel = ++this.level;
+                update[newLevel-1] = this.header;
+            }
+            
+            x = new Node(newLevel, searchKey, newValue);
+            for (int i = 0; i < newLevel; i++) {
+                x.forward[i] = update[i].forward[i];
+                update[i].forward[i] = x;
+            }
+        }
+    }
+    
+    public void insert(int searchKey, Data newValue) {
+        Node<Data>[] update = new Node[level+1];
+        Node<Data> x = this.header;
+        for (int i = this.level - 1; i >= 0; i--) {
+            while (x.forward[i] != null && x.forward[i].key < searchKey) {
+                x = x.forward[i];
+            }
+            update[i] = x;
+        }
+        
+        x = x.forward[0];
+        if (x != null && x.key == searchKey) {
+            x.value = newValue;
+        } else {
+            int newLevel = randomLevel();
+            
+            if (newLevel > this.level) {
+                newLevel = ++this.level;
+                update[newLevel-1] = this.header;
+            }
+            
+            x = new Node(newLevel, searchKey, newValue);
+            for (int i = 0; i < newLevel; i++) {
+                x.forward[i] = update[i].forward[i];
+                update[i].forward[i] = x;
+            }
+        }
+    }
+    
+    public void delete(int searchKey) {
+        Node[] update = new Node[level];
+        Node x = this.header;
+        for (int i = this.level-1; i >= 0; i--) {
+            while (x.forward[i] != null && x.forward[i].key < searchKey) {
+                x = x.forward[i];
+            }
+            update[i] = x;
+        }
+        x = x.forward[0];
+        if (x != null && x.key == searchKey) {
+            for (int i = 0; i < level; i++) {
+                if (update[i].forward[i] != x) break;
+                update[i].forward[i] = x.forward[i];
+            }
+            while (this.level > 1 && this.header.forward[this.level-1] == null) this.level--;
+        }
+    }
+    
+    private int randomLevel() { //random() returns a random value in [0..1)
         int newLevel = 1;
         while (new Random().nextDouble() < p) // no MaxLevel check
             newLevel++;
         return Math.min(newLevel, maxLevel); // efficiency!
     }
-
-    public static void main(String[] args) throws IOException {
-        list_head = new List();
-        list_head.pointers = new List[1];
-        list_head.value = 0;
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(in.readLine());
-        while (st.hasMoreElements()) {
-            List<Integer>[] update = new List[maxLevel+1];
-            int key = Integer.parseInt(st.nextToken());
-            // insert
-            List<Integer> node = list_head;
-            for (int i = node.pointers.length; i >= 1; i--) {
-                 while (node.pointers[i-1].value < key) node = node.pointers[i-1];
-                update[i-1] = node;
+    
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            Node x = header.forward[i];
+            while (x != null) {
+                sb.append(x.key+" ");
+                x = x.forward[i];
             }
-            
-            node = node.pointers[0];
-            if (node.value == key) {
-                node.value = key;
-            } else {
-                int level = randomLevel();
-                if (level > maxLevel) {
-                    level = ++maxLevel;
-                    update[level-1] = list_head;
-                }
-                
-                node = new List();
-                node.pointers = new List[level];
-                node.value = key;
-                for (int i = 0; i < level; i++) {
-                    node.pointers[i] = update[i].pointers[i];
-                    update[i].pointers[i] = node;
-                }
-            }
-            
+            sb.append("\n");
         }
+        return sb.toString();
     }
-
+    
 }
